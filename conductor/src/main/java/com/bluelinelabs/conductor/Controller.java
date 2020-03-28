@@ -603,12 +603,12 @@ public abstract class Controller {
         Collections.sort(childTransactions, new Comparator<RouterTransaction>() {
             @Override
             public int compare(RouterTransaction o1, RouterTransaction o2) {
-                return o2.transactionIndex - o1.transactionIndex;
+                return o2.getTransactionIndex() - o1.getTransactionIndex();
             }
         });
 
         for (RouterTransaction transaction : childTransactions) {
-            Controller childController = transaction.controller;
+            Controller childController = transaction.controller();
 
             if (childController.isAttached() && childController.getRouter().handleBack()) {
                 return true;
@@ -918,8 +918,8 @@ public abstract class Controller {
 
         for (ControllerHostedRouter childRouter : childRouters) {
             for (RouterTransaction childTransaction : childRouter.backstack) {
-                if (childTransaction.controller.awaitingParentAttach) {
-                    childTransaction.controller.attach(childTransaction.controller.view);
+                if (childTransaction.controller().awaitingParentAttach) {
+                    childTransaction.controller().attach(childTransaction.controller().view);
                 }
             }
 

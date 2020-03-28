@@ -5,7 +5,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 @RestrictTo(LIBRARY_GROUP)
-internal class TransactionIndexer {
+class TransactionIndexer {
 
     private var currentIndex = 0
 
