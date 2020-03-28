@@ -1,6 +1,7 @@
 package com.bluelinelabs.conductor.demo.controllers.base;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 
 import com.bluelinelabs.conductor.ControllerChangeHandler;
@@ -29,7 +30,7 @@ public abstract class RefWatchingController extends ButterKnifeController {
     protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         super.onChangeEnded(changeHandler, changeType);
 
-        hasExited = !changeType.isEnter;
+        hasExited = !changeType.isEnter();
         if (isDestroyed()) {
             DemoApplication.refWatcher.watch(this);
         }

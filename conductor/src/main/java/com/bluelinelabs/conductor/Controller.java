@@ -18,6 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 import com.bluelinelabs.conductor.internal.ViewAttachHandler;
@@ -31,10 +35,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * A Controller manages portions of the UI. It is similar to an Activity or Fragment in that it manages its
@@ -1247,7 +1247,7 @@ public abstract class Controller {
     }
 
     final void changeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
-        if (!changeType.isEnter) {
+        if (!changeType.isEnter()) {
             isPerformingExitTransition = true;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(true);
@@ -1263,7 +1263,7 @@ public abstract class Controller {
     }
 
     final void changeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
-        if (!changeType.isEnter) {
+        if (!changeType.isEnter()) {
             isPerformingExitTransition = false;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(false);

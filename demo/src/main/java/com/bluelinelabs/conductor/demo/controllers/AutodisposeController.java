@@ -1,12 +1,13 @@
 package com.bluelinelabs.conductor.demo.controllers;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
@@ -144,7 +145,7 @@ public class AutodisposeController extends Controller {
     protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         super.onChangeEnded(changeHandler, changeType);
 
-        hasExited = !changeType.isEnter;
+        hasExited = !changeType.isEnter();
         if (isDestroyed()) {
             DemoApplication.refWatcher.watch(this);
         }
