@@ -9,9 +9,6 @@ import androidx.annotation.UiThread
 import com.bluelinelabs.conductor.internal.LifecycleHandler
 import com.bluelinelabs.conductor.internal.ensureMainThread
 
-/**
- * Point of initial interaction with Conductor. Used to attach a [Router] to your Activity.
- */
 
 /**
  * Conductor will create a [Router] that has been initialized for your Activity and containing ViewGroup.
@@ -27,9 +24,8 @@ import com.bluelinelabs.conductor.internal.ensureMainThread
  */
 @UiThread
 fun Activity.attachRouter(container: ViewGroup, savedInstanceState: Bundle?): Router {
-    ensureMainThread()
-    val lifecycleHandler = LifecycleHandler.install(this)
-    val router = lifecycleHandler.getRouter(container, savedInstanceState)
-    router.rebindIfNeeded()
-    return router
+  ensureMainThread()
+  return LifecycleHandler.install(this)
+    .getRouter(container, savedInstanceState)
+    .also { it.rebindIfNeeded() }
 }
