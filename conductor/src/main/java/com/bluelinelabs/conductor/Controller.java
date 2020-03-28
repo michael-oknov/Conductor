@@ -32,7 +32,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -502,27 +501,21 @@ public abstract class Controller {
      * Calls startActivity(Intent) from this Controller's host Activity.
      */
     public final void startActivity(@NonNull final Intent intent) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.startActivity(intent); }
-        });
+        executeWithRouter(() -> router.startActivity(intent));
     }
 
     /**
      * Calls startActivityForResult(Intent, int) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.startActivityForResult(instanceId, intent, requestCode); }
-        });
+        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode));
     }
 
     /**
      * Calls startActivityForResult(Intent, int, Bundle) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode, @Nullable final Bundle options) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.startActivityForResult(instanceId, intent, requestCode, options); }
-        });
+        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode, options));
     }
 
     /**
@@ -540,9 +533,7 @@ public abstract class Controller {
      * @param requestCode The request code being registered for.
      */
     public final void registerForActivityResult(final int requestCode) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.registerForActivityResult(instanceId, requestCode); }
-        });
+        executeWithRouter(() -> router.registerForActivityResult(instanceId, requestCode));
     }
 
     /**
@@ -564,9 +555,7 @@ public abstract class Controller {
     public final void requestPermissions(@NonNull final String[] permissions, final int requestCode) {
         requestedPermissions.addAll(Arrays.asList(permissions));
 
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.requestPermissions(instanceId, permissions, requestCode); }
-        });
+        executeWithRouter(() -> router.requestPermissions(instanceId, permissions, requestCode));
     }
 
     /**
@@ -600,12 +589,7 @@ public abstract class Controller {
             childTransactions.addAll(childRouter.getBackstack());
         }
 
-        Collections.sort(childTransactions, new Comparator<RouterTransaction>() {
-            @Override
-            public int compare(RouterTransaction o1, RouterTransaction o2) {
-                return o2.getTransactionIndex() - o1.getTransactionIndex();
-            }
-        });
+        Collections.sort(childTransactions, (o1, o2) -> o2.getTransactionIndex() - o1.getTransactionIndex());
 
         for (RouterTransaction transaction : childTransactions) {
             Controller childController = transaction.controller();

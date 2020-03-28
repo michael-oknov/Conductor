@@ -720,12 +720,7 @@ public abstract class Router {
     }
 
     void watchContainerAttach() {
-        container.post(new Runnable() {
-            @Override
-            public void run() {
-                containerFullyAttached = true;
-            }
-        });
+        container.post(() -> containerFullyAttached = true);
     }
 
     void prepareForContainerRemoval() {
@@ -834,12 +829,7 @@ public abstract class Router {
                 to.setNeedsAttach(true);
             }
             pendingControllerChanges.add(transaction);
-            container.post(new Runnable() {
-                @Override
-                public void run() {
-                    performPendingControllerChanges();
-                }
-            });
+            container.post(this::performPendingControllerChanges);
         } else {
             ControllerChangeHandler.executeChange(transaction);
         }

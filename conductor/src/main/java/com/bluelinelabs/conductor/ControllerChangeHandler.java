@@ -1,11 +1,12 @@
 package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.bluelinelabs.conductor.internal.ClassUtils;
@@ -201,32 +202,29 @@ public abstract class ControllerChangeHandler {
                 fromView = null;
             }
 
-            handler.performChange(container, fromView, toView, isPush, new ControllerChangeCompletedListener() {
-                @Override
-                public void onChangeCompleted() {
-                    if (from != null) {
-                        from.changeEnded(handler, fromChangeType);
-                    }
+            handler.performChange(container, fromView, toView, isPush, () -> {
+                if (from != null) {
+                    from.changeEnded(handler, fromChangeType);
+                }
 
-                    if (to != null) {
-                        inProgressChangeHandlers.remove(to.getInstanceId());
-                        to.changeEnded(handler, toChangeType);
-                    }
+                if (to != null) {
+                    inProgressChangeHandlers.remove(to.getInstanceId());
+                    to.changeEnded(handler, toChangeType);
+                }
 
-                    for (ControllerChangeListener listener : listeners) {
-                        listener.onChangeCompleted(to, from, isPush, container, handler);
-                    }
+                for (ControllerChangeListener listener : listeners) {
+                    listener.onChangeCompleted(to, from, isPush, container, handler);
+                }
 
-                    if (handler.forceRemoveViewOnPush && fromView != null) {
-                        ViewParent fromParent = fromView.getParent();
-                        if (fromParent != null && fromParent instanceof ViewGroup) {
-                            ((ViewGroup)fromParent).removeView(fromView);
-                        }
+                if (handler.forceRemoveViewOnPush && fromView != null) {
+                    ViewParent fromParent = fromView.getParent();
+                    if (fromParent != null && fromParent instanceof ViewGroup) {
+                        ((ViewGroup) fromParent).removeView(fromView);
                     }
+                }
 
-                    if (handler.removesFromViewOnPush() && from != null) {
-                        from.setNeedsAttach(false);
-                    }
+                if (handler.removesFromViewOnPush() && from != null) {
+                    from.setNeedsAttach(false);
                 }
             });
         }
