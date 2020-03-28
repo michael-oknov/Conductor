@@ -9,9 +9,9 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 @RestrictTo(LIBRARY_GROUP)
 internal fun ensureMainThread() {
-    if (Looper.getMainLooper().thread !== Thread.currentThread()) {
-        throw CalledFromWrongThreadException("Methods that affect the view hierarchy can can only be called from the main thread.")
-    }
+  if (Looper.getMainLooper().thread !== Thread.currentThread()) {
+    throw CalledFromWrongThreadException("Methods that affect the view hierarchy can can only be called from the main thread.")
+  }
 }
 
 private class CalledFromWrongThreadException(msg: String?) : AndroidRuntimeException(msg)

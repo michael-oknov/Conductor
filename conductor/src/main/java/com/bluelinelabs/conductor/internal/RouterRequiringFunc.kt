@@ -5,5 +5,5 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 @RestrictTo(LIBRARY_GROUP)
 interface RouterRequiringFunc {
-    fun execute()
+  fun execute()
 }

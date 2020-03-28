@@ -18,95 +18,103 @@ private const val KEY_ATTACHED_TO_ROUTER = "RouterTransaction.attachedToRouter"
  */
 class RouterTransaction
 private constructor(
-        @get:JvmName("controller")
-        val controller: Controller,
-        private var tag: String? = null,
-        private var pushControllerChangeHandler: ControllerChangeHandler? = null,
-        private var popControllerChangeHandler: ControllerChangeHandler? = null,
-        private var attachedToRouter: Boolean = false,
-        @RestrictTo(LIBRARY)
-        var transactionIndex: Int = INVALID_INDEX
+  @get:JvmName("controller")
+  val controller: Controller,
+  private var tag: String? = null,
+  private var pushControllerChangeHandler: ControllerChangeHandler? = null,
+  private var popControllerChangeHandler: ControllerChangeHandler? = null,
+  private var attachedToRouter: Boolean = false,
+  @RestrictTo(LIBRARY)
+  var transactionIndex: Int = INVALID_INDEX
 ) {
 
 
-    @RestrictTo(LIBRARY)
-    internal constructor(bundle: Bundle) : this(
-            controller = Controller.newInstance(bundle.getBundle(KEY_VIEW_CONTROLLER_BUNDLE)!!),
-            pushControllerChangeHandler = ControllerChangeHandler.fromBundle(bundle.getBundle(KEY_PUSH_TRANSITION)),
-            popControllerChangeHandler = ControllerChangeHandler.fromBundle(bundle.getBundle(KEY_POP_TRANSITION)),
-            tag = bundle.getString(KEY_TAG),
-            transactionIndex = bundle.getInt(KEY_INDEX),
-            attachedToRouter = bundle.getBoolean(KEY_ATTACHED_TO_ROUTER)
-    )
+  @RestrictTo(LIBRARY)
+  internal constructor(bundle: Bundle) : this(
+    controller = Controller.newInstance(bundle.getBundle(KEY_VIEW_CONTROLLER_BUNDLE)!!),
+    pushControllerChangeHandler = ControllerChangeHandler.fromBundle(
+      bundle.getBundle(
+        KEY_PUSH_TRANSITION
+      )
+    ),
+    popControllerChangeHandler = ControllerChangeHandler.fromBundle(
+      bundle.getBundle(
+        KEY_POP_TRANSITION
+      )
+    ),
+    tag = bundle.getString(KEY_TAG),
+    transactionIndex = bundle.getInt(KEY_INDEX),
+    attachedToRouter = bundle.getBoolean(KEY_ATTACHED_TO_ROUTER)
+  )
 
-    fun onAttachedToRouter() {
-        attachedToRouter = true
+  fun onAttachedToRouter() {
+    attachedToRouter = true
+  }
+
+  fun tag(): String? = tag
+
+  fun tag(tag: String?): RouterTransaction {
+    return if (!attachedToRouter) {
+      this.tag = tag
+      this
+    } else {
+      throw RuntimeException(javaClass.simpleName + "s can not be modified after being added to a Router.")
     }
+  }
 
-    fun tag(): String? = tag
+  fun pushChangeHandler(): ControllerChangeHandler? {
+    return controller.overriddenPushHandler ?: pushControllerChangeHandler
+  }
 
-    fun tag(tag: String?): RouterTransaction {
-        return if (!attachedToRouter) {
-            this.tag = tag
-            this
-        } else {
-            throw RuntimeException(javaClass.simpleName + "s can not be modified after being added to a Router.")
-        }
+  fun pushChangeHandler(handler: ControllerChangeHandler?): RouterTransaction {
+    return if (!attachedToRouter) {
+      pushControllerChangeHandler = handler
+      this
+    } else {
+      throw RuntimeException("${javaClass.simpleName}s can not be modified after being added to a Router.")
     }
+  }
 
-    fun pushChangeHandler(): ControllerChangeHandler? {
-        return controller.overriddenPushHandler ?: pushControllerChangeHandler
+  fun popChangeHandler(): ControllerChangeHandler? {
+    return controller.overriddenPopHandler ?: popControllerChangeHandler
+  }
+
+  fun popChangeHandler(handler: ControllerChangeHandler?): RouterTransaction {
+    return if (!attachedToRouter) {
+      popControllerChangeHandler = handler
+      this
+    } else {
+      throw RuntimeException("${javaClass.simpleName}s can not be modified after being added to a Router.")
     }
+  }
 
-    fun pushChangeHandler(handler: ControllerChangeHandler?): RouterTransaction {
-        return if (!attachedToRouter) {
-            pushControllerChangeHandler = handler
-            this
-        } else {
-            throw RuntimeException("${javaClass.simpleName}s can not be modified after being added to a Router.")
-        }
+  fun ensureValidIndex(indexer: TransactionIndexer) {
+    if (transactionIndex == INVALID_INDEX) {
+      transactionIndex = indexer.nextIndex()
     }
+  }
 
-    fun popChangeHandler(): ControllerChangeHandler? {
-        return controller.overriddenPopHandler ?: popControllerChangeHandler
+  /**
+   * Used to serialize this transaction into a Bundle
+   */
+  fun saveInstanceState(): Bundle = Bundle().apply {
+    putBundle(KEY_VIEW_CONTROLLER_BUNDLE, controller.saveInstanceState())
+    if (pushControllerChangeHandler != null) {
+      putBundle(KEY_PUSH_TRANSITION, pushControllerChangeHandler!!.toBundle())
     }
-
-    fun popChangeHandler(handler: ControllerChangeHandler?): RouterTransaction {
-        return if (!attachedToRouter) {
-            popControllerChangeHandler = handler
-            this
-        } else {
-            throw RuntimeException("${javaClass.simpleName}s can not be modified after being added to a Router.")
-        }
+    if (popControllerChangeHandler != null) {
+      putBundle(KEY_POP_TRANSITION, popControllerChangeHandler!!.toBundle())
     }
+    putString(KEY_TAG, tag)
+    putInt(KEY_INDEX, transactionIndex)
+    putBoolean(KEY_ATTACHED_TO_ROUTER, attachedToRouter)
+  }
 
-    fun ensureValidIndex(indexer: TransactionIndexer) {
-        if (transactionIndex == INVALID_INDEX) {
-            transactionIndex = indexer.nextIndex()
-        }
+  companion object {
+
+    @JvmStatic
+    fun with(controller: Controller): RouterTransaction {
+      return RouterTransaction(controller)
     }
-
-    /**
-     * Used to serialize this transaction into a Bundle
-     */
-    fun saveInstanceState(): Bundle = Bundle().apply {
-        putBundle(KEY_VIEW_CONTROLLER_BUNDLE, controller.saveInstanceState())
-        if (pushControllerChangeHandler != null) {
-            putBundle(KEY_PUSH_TRANSITION, pushControllerChangeHandler!!.toBundle())
-        }
-        if (popControllerChangeHandler != null) {
-            putBundle(KEY_POP_TRANSITION, popControllerChangeHandler!!.toBundle())
-        }
-        putString(KEY_TAG, tag)
-        putInt(KEY_INDEX, transactionIndex)
-        putBoolean(KEY_ATTACHED_TO_ROUTER, attachedToRouter)
-    }
-
-    companion object {
-
-        @JvmStatic
-        fun with(controller: Controller): RouterTransaction {
-            return RouterTransaction(controller)
-        }
-    }
+  }
 }
