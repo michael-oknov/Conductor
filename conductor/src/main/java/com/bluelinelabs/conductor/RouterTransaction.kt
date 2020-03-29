@@ -99,12 +99,8 @@ private constructor(
    */
   fun saveInstanceState(): Bundle = Bundle().apply {
     putBundle(KEY_VIEW_CONTROLLER_BUNDLE, controller.saveInstanceState())
-    if (pushControllerChangeHandler != null) {
-      putBundle(KEY_PUSH_TRANSITION, pushControllerChangeHandler!!.toBundle())
-    }
-    if (popControllerChangeHandler != null) {
-      putBundle(KEY_POP_TRANSITION, popControllerChangeHandler!!.toBundle())
-    }
+    pushControllerChangeHandler?.let { putBundle(KEY_PUSH_TRANSITION, it.toBundle()) }
+    popControllerChangeHandler?.let { putBundle(KEY_POP_TRANSITION, it.toBundle()) }
     putString(KEY_TAG, tag)
     putInt(KEY_INDEX, transactionIndex)
     putBoolean(KEY_ATTACHED_TO_ROUTER, attachedToRouter)
