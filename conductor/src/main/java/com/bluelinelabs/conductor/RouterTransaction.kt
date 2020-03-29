@@ -112,9 +112,18 @@ private constructor(
 
   companion object {
 
+    @JvmOverloads
+    @JvmName("with")
     @JvmStatic
-    fun with(controller: Controller): RouterTransaction {
-      return RouterTransaction(controller)
+    fun Controller.asTransaction(
+      popChangeHandler: ControllerChangeHandler? = null,
+      pushChangeHandler: ControllerChangeHandler? = null
+    ): RouterTransaction {
+      return RouterTransaction(
+        this,
+        pushControllerChangeHandler = pushChangeHandler,
+        popControllerChangeHandler = popChangeHandler
+      )
     }
   }
 }
