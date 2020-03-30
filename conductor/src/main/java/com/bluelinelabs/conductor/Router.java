@@ -324,7 +324,7 @@ public abstract class Router {
     }
 
     /**
-     * Sets the root controller(). If any {@link Controller}s are currently in the backstack, they will be removed.
+     * Sets the root Controller. If any {@link Controller}s are currently in the backstack, they will be removed.
      *
      * @param transaction The transaction detailing what should be pushed, including the {@link Controller},
      *                    and its push and pop {@link ControllerChangeHandler}, and its tag.
@@ -790,7 +790,7 @@ public abstract class Router {
             // Activity or controller should be handling this by finishing or at least hiding this view.
             changeHandler = new NoOpControllerChangeHandler();
             forceDetachDestroy = true;
-        } else if (!isPush && fromController != null && !from.controller().isAttached()) {
+        } else if (!isPush && fromController != null && !fromController.isAttached()) {
             // We're popping fromController from the middle of the backstack,
             // need to do it immediately and destroy the controller
             forceDetachDestroy = true;
@@ -799,8 +799,8 @@ public abstract class Router {
         performControllerChange(toController, fromController, isPush, changeHandler);
 
         if (forceDetachDestroy && fromController != null) {
-            if (from.controller().getView() != null) {
-                from.controller().detach(from.controller().getView(), true, false);
+            if (fromController.getView() != null) {
+                fromController.detach(fromController.getView(), true, false);
             } else {
                 from.controller().destroy();
             }
