@@ -20,7 +20,7 @@ dependencies {
     api rootProject.ext.androidxAnnotations
     api kotlinStd
 
-    lintChecks project(':conductor-lint')
+    lintPublish project(':conductor-lint')
 }
 
 ext.artifactId = 'conductor'
