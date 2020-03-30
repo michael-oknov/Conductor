@@ -1251,7 +1251,7 @@ public abstract class Controller {
     }
 
     final void changeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
-        if (!changeType.isEnter()) {
+        if (!changeType.isEnter) {
             isPerformingExitTransition = true;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(true);
@@ -1267,7 +1267,7 @@ public abstract class Controller {
     }
 
     final void changeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
-        if (!changeType.isEnter()) {
+        if (!changeType.isEnter) {
             isPerformingExitTransition = false;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(false);

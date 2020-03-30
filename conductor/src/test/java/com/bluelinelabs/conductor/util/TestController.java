@@ -59,7 +59,7 @@ public class TestController extends Controller {
 
         if (changeHandler instanceof MockChangeHandler) {
             MockChangeHandler mockHandler = (MockChangeHandler)changeHandler;
-            changeHandlerHistory.addEntry(mockHandler.from, mockHandler.to, changeType.isPush(), mockHandler);
+            changeHandlerHistory.addEntry(mockHandler.from, mockHandler.to, changeType.isPush, mockHandler);
         } else {
             changeHandlerHistory.isValidHistory = false;
         }

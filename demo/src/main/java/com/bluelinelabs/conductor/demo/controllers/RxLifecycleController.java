@@ -142,7 +142,7 @@ public class RxLifecycleController extends RxController {
     protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         super.onChangeEnded(changeHandler, changeType);
 
-        hasExited = !changeType.isEnter();
+        hasExited = !changeType.isEnter;
         if (isDestroyed()) {
             DemoApplication.refWatcher.watch(this);
         }
