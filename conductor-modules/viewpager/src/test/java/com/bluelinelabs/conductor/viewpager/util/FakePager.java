@@ -5,9 +5,6 @@ import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.viewpager.RouterPagerAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class FakePager {
 
     private ViewGroup container;
@@ -27,11 +24,6 @@ public class FakePager {
     public void pageTo(int page) {
         int firstPage = Math.max(0, page - offscreenPageLimit);
         int lastPage = Math.min(adapter.getCount() - 1, page + offscreenPageLimit);
-
-        List<Integer> pagesI = new ArrayList<>();
-        for (int i = 0; i < pages.size(); i++) {
-            pagesI.add(pages.keyAt(i));
-        }
 
         for (int i = pages.size() - 1; i >= 0; i--) {
             int key = pages.keyAt(i);

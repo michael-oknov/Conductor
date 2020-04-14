@@ -1,11 +1,11 @@
 package com.bluelinelabs.conductor.demo.controllers;
 
-import androidx.annotation.NonNull;
-import com.google.android.material.tabs.TabLayout;
-import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
@@ -13,12 +13,13 @@ import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 import com.bluelinelabs.conductor.viewpager.RouterPagerAdapter;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.Locale;
 
 import butterknife.BindView;
 
-public class PagerController extends BaseController {
+public class ViewPagerController extends BaseController {
 
     private int[] PAGE_COLORS = new int[]{R.color.green_300, R.color.cyan_300, R.color.deep_purple_300, R.color.lime_300, R.color.red_300};
 
@@ -27,7 +28,7 @@ public class PagerController extends BaseController {
 
     private final RouterPagerAdapter pagerAdapter;
 
-    public PagerController() {
+    public ViewPagerController() {
         pagerAdapter = new RouterPagerAdapter(this) {
             @Override
             public void configureRouter(@NonNull Router router, int position) {
@@ -52,7 +53,7 @@ public class PagerController extends BaseController {
     @NonNull
     @Override
     protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.controller_pager, container, false);
+        return inflater.inflate(R.layout.controller_view_pager, container, false);
     }
 
     @Override
