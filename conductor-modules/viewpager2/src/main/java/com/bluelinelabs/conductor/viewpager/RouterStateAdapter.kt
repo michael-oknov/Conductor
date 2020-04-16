@@ -48,11 +48,8 @@ abstract class RouterStateAdapter(private val host: Controller) :
   }
 
   private fun inferViewPager(recyclerView: RecyclerView): ViewPager2 {
-    val parent = recyclerView.parent
-    if (parent !is ViewPager2) {
-      throw IllegalStateException("Expected ViewPager2 instance. Got: $parent")
-    }
-    return parent
+    return recyclerView.parent as? ViewPager2 ?:
+      error("Expected ViewPager2 instance. Got: ${recyclerView.parent}")
   }
 
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -133,8 +130,8 @@ abstract class RouterStateAdapter(private val host: Controller) :
 
   override fun saveState(): Parcelable {
     return SavedState(
-      savedPagesKeys = (0..savedPages.size()).map { savedPages.keyAt(it) },
-      savedPagesValues = (0..savedPages.size()).map { savedPages.valueAt(it) },
+      savedPagesKeys = (0 until savedPages.size()).map { savedPages.keyAt(it) },
+      savedPagesValues = (0 until savedPages.size()).map { savedPages.valueAt(it) },
       savedPageHistory = savedPageHistory,
       maxPagesToStateSave = maxPagesToStateSave
     )
@@ -144,7 +141,7 @@ abstract class RouterStateAdapter(private val host: Controller) :
     if (state !is SavedState) return
 
     savedPages = LongSparseArray()
-    (0..state.savedPagesKeys.size).forEach { index ->
+    state.savedPagesKeys.indices.forEach { index ->
       savedPages.put(state.savedPagesKeys[index], state.savedPagesValues[index])
     }
 
@@ -184,7 +181,7 @@ abstract class RouterStateAdapter(private val host: Controller) :
   private data class SavedState(
     val savedPagesKeys: List<Long>,
     val savedPagesValues: List<Bundle>,
-    var savedPageHistory: List<Long>,
-    var maxPagesToStateSave: Int
+    val savedPageHistory: List<Long>,
+    val maxPagesToStateSave: Int
   ) : Parcelable
 }
