@@ -68,51 +68,37 @@ abstract class RouterStateAdapter(private val host: Controller) :
   }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouterViewHolder {
-    return RouterViewHolder.create(parent)
+    return RouterViewHolder(parent)
   }
 
   override fun onBindViewHolder(holder: RouterViewHolder, position: Int) {
-    val itemId = getItemId(position)
-    val router = host.getChildRouter(holder.container, "$itemId")
-    holder.currentRouter = router
-    holder.currentItemId = itemId
     holder.currentItemPosition = position
 
-    if (!router.hasRootController()) {
-      val routerSavedState = savedPages[position.toLong()]
-      if (routerSavedState != null) {
-        router.restoreInstanceState(routerSavedState)
-        savedPages.remove(itemId)
-        savedPageHistory.remove(itemId)
-      }
+    attachRouter(holder, position)
+  }
+
+  override fun onViewAttachedToWindow(holder: RouterViewHolder) {
+    super.onViewAttachedToWindow(holder)
+
+    if (!holder.attached) {
+      attachRouter(holder, holder.currentItemPosition)
     }
+  }
 
-    router.rebindIfNeeded()
-    configureRouter(router, position)
+  override fun onViewDetachedFromWindow(holder: RouterViewHolder) {
+    super.onViewDetachedFromWindow(holder)
 
-    if (position != currentPrimaryRouterPosition) {
-      for (transaction in router.backstack) {
-        transaction.controller.setOptionsMenuHidden(true)
-      }
-    }
-
-    visibleRouters.put(position, router)
+    detachRouter(holder)
   }
 
   override fun onViewRecycled(holder: RouterViewHolder) {
+    super.onViewRecycled(holder)
+
+    detachRouter(holder)
+
     holder.currentRouter?.let { router ->
-      val savedState = Bundle()
-      router.saveInstanceState(savedState)
-      savedPages.put(holder.currentItemId, savedState)
-
-      savedPageHistory.remove(holder.currentItemId)
-      savedPageHistory.add(holder.currentItemId)
-
-      ensurePagesSaved()
-
       host.removeChildRouter(router)
-
-      visibleRouters.remove(holder.currentItemPosition)
+      holder.currentRouter = null
     }
   }
 
@@ -147,6 +133,54 @@ abstract class RouterStateAdapter(private val host: Controller) :
 
     savedPageHistory = state.savedPageHistory.toMutableList()
     maxPagesToStateSave = state.maxPagesToStateSave
+  }
+
+  private fun attachRouter(holder: RouterViewHolder, position: Int) {
+    val itemId = getItemId(position)
+    val router = host.getChildRouter(holder.container, "$itemId")
+    holder.currentRouter = router
+    holder.currentItemId = itemId
+
+    if (!router.hasRootController()) {
+      val routerSavedState = savedPages[position.toLong()]
+      if (routerSavedState != null) {
+        router.restoreInstanceState(routerSavedState)
+        savedPages.remove(itemId)
+        savedPageHistory.remove(itemId)
+      }
+    }
+
+    router.rebindIfNeeded()
+    configureRouter(router, position)
+
+    if (position != currentPrimaryRouterPosition) {
+      for (transaction in router.backstack) {
+        transaction.controller.setOptionsMenuHidden(true)
+      }
+    }
+
+    visibleRouters.put(position, router)
+
+    holder.attached = true
+  }
+
+  private fun detachRouter(holder: RouterViewHolder) {
+    holder.currentRouter?.let { router ->
+      router.prepareForHostDetach()
+
+      val savedState = Bundle()
+      router.saveInstanceState(savedState)
+      savedPages.put(holder.currentItemId, savedState)
+
+      savedPageHistory.remove(holder.currentItemId)
+      savedPageHistory.add(holder.currentItemId)
+
+      ensurePagesSaved()
+
+      visibleRouters.remove(holder.currentItemPosition)
+    }
+
+    holder.attached = false
   }
 
   private fun ensurePagesSaved() {
