@@ -1,5 +1,7 @@
 package com.bluelinelabs.conductor.lint;
 
+import com.android.tools.lint.checks.infrastructure.LintDetectorTest;
+
 import org.intellij.lang.annotations.Language;
 import org.junit.Test;
 
@@ -20,6 +22,12 @@ public class ControllerDetectorTest {
                     + "^\n"
                     + "1 errors, 0 warnings\n";
 
+    private final LintDetectorTest.TestFile controllerStub = java(
+            "package com.bluelinelabs.conductor;\n"
+                    + "abstract class Controller {}"
+    );
+
+
     @Test
     public void testWithNoConstructor() {
         @Language("JAVA") String source = ""
@@ -28,7 +36,7 @@ public class ControllerDetectorTest {
                 + "}";
 
         lint()
-                .files(java(source))
+                .files(controllerStub, java(source))
                 .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
                 .run()
                 .expectClean();
@@ -43,7 +51,7 @@ public class ControllerDetectorTest {
                 + "}";
 
         lint()
-                .files(java(source))
+                .files(controllerStub, java(source))
                 .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
                 .run()
                 .expectClean();
@@ -58,7 +66,7 @@ public class ControllerDetectorTest {
                 + "}";
 
         lint()
-                .files(java(source))
+                .files(controllerStub, java(source))
                 .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
                 .run()
                 .expect(CONSTRUCTOR_ERROR);
@@ -74,7 +82,7 @@ public class ControllerDetectorTest {
                 + "}";
 
         lint()
-                .files(java(source))
+                .files(controllerStub, java(source))
                 .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
                 .run()
                 .expectClean();
@@ -89,7 +97,7 @@ public class ControllerDetectorTest {
                 + "}";
 
         lint()
-                .files(java(source))
+                .files(controllerStub, java(source))
                 .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
                 .run()
                 .expect(CONSTRUCTOR_ERROR);
@@ -104,7 +112,7 @@ public class ControllerDetectorTest {
                 + "}";
 
         lint()
-                .files(java(source))
+                .files(controllerStub, java(source))
                 .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
                 .run()
                 .expect(CLASS_ERROR);
