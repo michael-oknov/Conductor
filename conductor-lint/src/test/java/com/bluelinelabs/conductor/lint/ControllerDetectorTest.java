@@ -89,6 +89,32 @@ public class ControllerDetectorTest {
     }
 
     @Test
+    public void testWithBaseClassAndPrivateConstructor() {
+        @Language("JAVA")
+        String baseClass = ""
+                + "package test;\n"
+                + "public class BaseController extends com.bluelinelabs.conductor.Controller {}";
+
+        @Language("JAVA")
+        String source = ""
+                + "package test;\n"
+                + "public class SampleController extends BaseController {\n"
+                + "    private SampleController() { }\n"
+                + "}";
+
+        lint()
+                .files(controllerStub, java(baseClass), java(source))
+                .issues(ControllerIssueDetector.ISSUE, ControllerChangeHandlerIssueDetector.ISSUE)
+                .run()
+                .expect(
+                        "src/test/SampleController.java:2: Error: This Controller needs to have either a public default constructor or a public single-argument constructor that takes a Bundle. (test.SampleController) [ValidController]\n" +
+                                "public class SampleController extends BaseController {\n" +
+                                "^\n" +
+                                "1 errors, 0 warnings"
+                );
+    }
+
+    @Test
     public void testWithPrivateConstructor() {
         @Language("JAVA") String source = ""
                 + "package test;\n"
