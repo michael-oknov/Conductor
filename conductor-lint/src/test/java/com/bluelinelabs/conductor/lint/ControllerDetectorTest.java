@@ -6,13 +6,14 @@ import org.junit.Test;
 import static com.android.tools.lint.checks.infrastructure.TestFiles.java;
 import static com.android.tools.lint.checks.infrastructure.TestLintTask.lint;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ControllerDetectorTest {
 
     private static final String CONSTRUCTOR_ERROR =
             "src/test/SampleController.java:2: Error: This Controller needs to have either a public default constructor or a public single-argument constructor that takes a Bundle. (test.SampleController) [ValidController]\n"
-            + "public class SampleController extends com.bluelinelabs.conductor.Controller {\n"
-            + "^\n"
-            + "1 errors, 0 warnings\n";
+                    + "public class SampleController extends com.bluelinelabs.conductor.Controller {\n"
+                    + "^\n"
+                    + "1 errors, 0 warnings\n";
     private static final String CLASS_ERROR =
             "src/test/SampleController.java:2: Error: This Controller class should be public (test.SampleController) [ValidController]\n"
                     + "private class SampleController extends com.bluelinelabs.conductor.Controller {\n"

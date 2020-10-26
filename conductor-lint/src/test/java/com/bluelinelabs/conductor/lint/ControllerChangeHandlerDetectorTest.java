@@ -6,13 +6,14 @@ import org.junit.Test;
 import static com.android.tools.lint.checks.infrastructure.TestFiles.java;
 import static com.android.tools.lint.checks.infrastructure.TestLintTask.lint;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ControllerChangeHandlerDetectorTest {
 
     private static final String CONSTRUCTOR =
             "src/test/SampleHandler.java:2: Error: This ControllerChangeHandler needs to have a public default constructor (test.SampleHandler) [ValidControllerChangeHandler]\n"
-            + "public class SampleHandler extends com.bluelinelabs.conductor.ControllerChangeHandler {\n"
-            + "^\n"
-            + "1 errors, 0 warnings\n";
+                    + "public class SampleHandler extends com.bluelinelabs.conductor.ControllerChangeHandler {\n"
+                    + "^\n"
+                    + "1 errors, 0 warnings\n";
     private static final String PRIVATE_CLASS_ERROR =
             "src/test/SampleHandler.java:2: Error: This ControllerChangeHandler class should be public (test.SampleHandler) [ValidControllerChangeHandler]\n"
                     + "private class SampleHandler extends com.bluelinelabs.conductor.ControllerChangeHandler {\n"
