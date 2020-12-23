@@ -3,7 +3,6 @@ ext {
     compileSdkVersion = 28
     targetSdkVersion = 28
 
-    butterknifeVersion = '10.1.0'
     picassoVersion = '2.5.2'
     leakCanaryVersion = '1.5.4'
     rxJavaVersion = '1.3.8'
@@ -13,7 +12,8 @@ ext {
     autodisposeVersion = '1.0.0'
     archComponentsVersion = '2.0.0'
     junitVersion = '4.12'
-    mvnPublishVersion = '0.11.1'
+    mvnPublishVersion = '0.13.0'
+    dokkaVersion = '1.4.10.2'
 
     agpVersion = "4.1.0"
     lintVersion = agpVersion.replaceFirst(~/\d*/) { version ->
@@ -21,17 +21,16 @@ ext {
         version.toInteger() + 23
     }
 
-    kotlinVersion = '1.4.10'
+    kotlinVersion = '1.3.72'
     kotlinStd = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
-    material = "com.google.android.material:material:1.0.0"
+    material = "com.google.android.material:material:1.1.0"
     androidxAnnotations = "androidx.annotation:annotation:1.1.0"
     androidxAppCompat = "androidx.appcompat:appcompat:1.0.0"
     androidxTransition = "androidx.transition:transition:1.3.1"
     androidxCollection = "androidx.collection:collection:1.1.0"
-
-    butterknife = "com.jakewharton:butterknife:$butterknifeVersion"
-    butterknifeCompiler = "com.jakewharton:butterknife-compiler:$butterknifeVersion"
+    androidxViewPager2 = "androidx.viewpager2:viewpager2:1.0.0"
+    androidxCoreKtx = "androidx.core:core-ktx:1.3.2"
 
     picasso = "com.squareup.picasso:picasso:$picassoVersion"
 
@@ -46,6 +45,7 @@ ext {
 
     autodispose = "com.uber.autodispose:autodispose:$autodisposeVersion"
     autodisposeLifecycle = "com.uber.autodispose:autodispose-lifecycle:$autodisposeVersion"
+    autodisposeKtx = "com.uber.autodispose:autodispose-ktx:$autodisposeVersion"
 
     archComponentsLifecycle = "androidx.lifecycle:lifecycle-runtime:$archComponentsVersion"
     archComponentsLiveDataCore = "androidx.lifecycle:lifecycle-livedata-core:$archComponentsVersion"

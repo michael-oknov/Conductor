@@ -6,6 +6,10 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
@@ -15,12 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.PagerAdapter;
-
 /**
- * An adapter for ViewPagers that uses Routers as pages
+ * An ViewPager adapter that uses Routers as pages
  */
 public abstract class RouterPagerAdapter extends PagerAdapter {
 
@@ -32,9 +32,9 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
 
     private final Controller host;
     private int maxPagesToStateSave = Integer.MAX_VALUE;
-    private Map<Integer, String> tags = new HashMap<>();
+    private final Map<Integer, String> tags = new HashMap<>();
     private SparseArray<Bundle> savedPages = new SparseArray<>();
-    private SparseArray<Router> visibleRouters = new SparseArray<>();
+    private final SparseArray<Router> visibleRouters = new SparseArray<>();
     private ArrayList<Integer> savedPageHistory = new ArrayList<>();
     private Router currentPrimaryRouter;
 
@@ -103,7 +103,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         Router router = (Router)object;
 
         Bundle savedState = new Bundle();
@@ -121,8 +121,8 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void setPrimaryItem(ViewGroup container, int position, Object object) {
-        Router router = (Router)object;
+    public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        Router router = (Router) object;
         if (router != currentPrimaryRouter) {
             if (currentPrimaryRouter != null) {
                 for (RouterTransaction transaction : currentPrimaryRouter.getBackstack()) {
@@ -139,7 +139,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public boolean isViewFromObject(View view, Object object) {
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         Router router = (Router)object;
         final List<RouterTransaction> backstack = router.getBackstack();
         for (RouterTransaction transaction : backstack) {

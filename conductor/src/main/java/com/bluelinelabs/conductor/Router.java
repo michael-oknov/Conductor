@@ -205,7 +205,7 @@ public abstract class Router {
             final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
             final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
             if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
-                for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator())) {
+                for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator(), true)) {
                     performControllerChange(null, visibleTransaction, true, handler);
                 }
             }
@@ -404,7 +404,7 @@ public abstract class Router {
         ThreadUtils.ensureMainThread();
 
         List<RouterTransaction> oldTransactions = getBackstack();
-        List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
+        List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator(), false);
 
         removeAllExceptVisibleAndUnowned();
         ensureOrderedTransactionIndices(newBackstack);
@@ -434,13 +434,13 @@ public abstract class Router {
         while (backstackIterator.hasNext()) {
             RouterTransaction transaction = backstackIterator.next();
             transaction.onAttachedToRouter();
-            setControllerRouter(transaction.controller());
+            setRouterOnController(transaction.controller());
         }
 
         if (newBackstack.size() > 0) {
             List<RouterTransaction> reverseNewBackstack = new ArrayList<>(newBackstack);
             Collections.reverse(reverseNewBackstack);
-            List<RouterTransaction> newVisibleTransactions = getVisibleTransactions(reverseNewBackstack.iterator());
+            List<RouterTransaction> newVisibleTransactions = getVisibleTransactions(reverseNewBackstack.iterator(), false);
             boolean newRootRequiresPush = !(newVisibleTransactions.size() > 0 && oldTransactions.contains(newVisibleTransactions.get(0)));
 
             boolean visibleTransactionsChanged = !backstacksAreEqual(newVisibleTransactions, oldVisibleTransactions);
@@ -464,7 +464,10 @@ public abstract class Router {
                         ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
                         localHandler.setForceRemoveViewOnPush(true);
                         ControllerChangeHandler.completeHandlerImmediately(transaction.controller().getInstanceId());
-                        performControllerChange(null, transaction, newRootRequiresPush, localHandler);
+
+                        if (transaction.controller().view != null) {
+                            performControllerChange(null, transaction, newRootRequiresPush, localHandler);
+                        }
                     }
                 }
 
@@ -549,7 +552,7 @@ public abstract class Router {
             if (transaction.controller().getNeedsAttach()) {
                 performControllerChange(transaction, null, true, new SimpleSwapChangeHandler(false));
             } else {
-                setControllerRouter(transaction.controller());
+                setRouterOnController(transaction.controller());
             }
         }
     }
@@ -605,7 +608,7 @@ public abstract class Router {
         isActivityStopped = true;
     }
 
-    public void onActivityDestroyed(@NonNull Activity activity) {
+    public void onActivityDestroyed(@NonNull Activity activity, boolean isConfigurationChange) {
         prepareForContainerRemoval();
         changeListeners.clear();
 
@@ -613,7 +616,7 @@ public abstract class Router {
             transaction.controller().activityDestroyed(activity);
 
             for (Router childRouter : transaction.controller().getChildRouters()) {
-                childRouter.onActivityDestroyed(activity);
+                childRouter.onActivityDestroyed(activity, isConfigurationChange);
             }
         }
 
@@ -622,7 +625,7 @@ public abstract class Router {
             controller.activityDestroyed(activity);
 
             for (Router childRouter : controller.getChildRouters()) {
-                childRouter.onActivityDestroyed(activity);
+                childRouter.onActivityDestroyed(activity, isConfigurationChange);
             }
         }
 
@@ -657,7 +660,7 @@ public abstract class Router {
 
         Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
         while (backstackIterator.hasNext()) {
-            setControllerRouter(backstackIterator.next().controller());
+            setRouterOnController(backstackIterator.next().controller());
         }
     }
 
@@ -720,7 +723,12 @@ public abstract class Router {
     }
 
     void watchContainerAttach() {
-        container.post(() -> containerFullyAttached = true);
+        container.post(new Runnable() {
+            @Override
+            public void run() {
+                containerFullyAttached = true;
+            }
+        });
     }
 
     void prepareForContainerRemoval() {
@@ -784,7 +792,7 @@ public abstract class Router {
 
         if (to != null) {
             to.ensureValidIndex(getTransactionIndexer());
-            setControllerRouter(toController);
+            setRouterOnController(toController);
         } else if (backstack.size() == 0 && !popsLastView) {
             // We're emptying out the backstack. Views get weird if you transition them out, so just no-op it. The host
             // Activity or controller should be handling this by finishing or at least hiding this view.
@@ -802,7 +810,7 @@ public abstract class Router {
             if (fromController.getView() != null) {
                 fromController.detach(fromController.getView(), true, false);
             } else {
-                from.controller().destroy();
+                fromController.destroy();
             }
         }
     }
@@ -829,7 +837,12 @@ public abstract class Router {
                 to.setNeedsAttach(true);
             }
             pendingControllerChanges.add(transaction);
-            container.post(this::performPendingControllerChanges);
+            container.post(new Runnable() {
+                @Override
+                public void run() {
+                    performPendingControllerChanges();
+                }
+            });
         } else {
             ControllerChangeHandler.executeChange(transaction);
         }
@@ -873,7 +886,7 @@ public abstract class Router {
     private void removeAllExceptVisibleAndUnowned() {
         List<View> views = new ArrayList<>();
 
-        for (RouterTransaction transaction : getVisibleTransactions(backstack.iterator())) {
+        for (RouterTransaction transaction : getVisibleTransactions(backstack.iterator(), false)) {
             if (transaction.controller().getView() != null) {
                 views.add(transaction.controller().getView());
             }
@@ -933,14 +946,20 @@ public abstract class Router {
         }
     }
 
-    private List<RouterTransaction> getVisibleTransactions(@NonNull Iterator<RouterTransaction> backstackIterator) {
+    private List<RouterTransaction> getVisibleTransactions(@NonNull Iterator<RouterTransaction> backstackIterator, boolean onlyTop) {
+        boolean visible = true;
+
         List<RouterTransaction> transactions = new ArrayList<>();
         while (backstackIterator.hasNext()) {
             RouterTransaction transaction = backstackIterator.next();
-            transactions.add(transaction);
 
-            //noinspection ConstantConditions
-            if (transaction.pushChangeHandler() == null || transaction.pushChangeHandler().removesFromViewOnPush()) {
+            if (visible) {
+                transactions.add(transaction);
+            }
+
+            visible = transaction.pushChangeHandler() != null && !transaction.pushChangeHandler().removesFromViewOnPush();
+
+            if (onlyTop && !visible) {
                 break;
             }
         }
@@ -963,7 +982,7 @@ public abstract class Router {
         return true;
     }
 
-    void setControllerRouter(@NonNull Controller controller) {
+    void setRouterOnController(@NonNull Controller controller) {
         controller.setRouter(this);
         controller.onContextAvailable();
     }

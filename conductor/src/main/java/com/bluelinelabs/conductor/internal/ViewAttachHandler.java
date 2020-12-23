@@ -40,10 +40,12 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
         }
 
         rootAttached = true;
-        listenForDeepestChildAttach(v, () -> {
-            childrenAttached = true;
-            reportAttached();
-
+        listenForDeepestChildAttach(v, new ChildAttachListener() {
+            @Override
+            public void onAttached() {
+                childrenAttached = true;
+                reportAttached();
+            }
         });
     }
 
@@ -65,6 +67,7 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
 
         if (childOnAttachStateChangeListener != null && view instanceof ViewGroup) {
             findDeepestChild((ViewGroup)view).removeOnAttachStateChangeListener(childOnAttachStateChangeListener);
+            childOnAttachStateChangeListener = null;
         }
     }
 
@@ -118,7 +121,7 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
 
             @Override
             public void onViewAttachedToWindow(View v) {
-                if (!attached) {
+                if (!attached && childOnAttachStateChangeListener != null) {
                     attached = true;
                     attachListener.onAttached();
                     v.removeOnAttachStateChangeListener(this);
