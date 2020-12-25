@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.bluelinelabs.conductor.internal.NoOpControllerChangeHandler;
 import com.bluelinelabs.conductor.internal.ThreadUtils;
 import com.bluelinelabs.conductor.internal.TransactionIndexer;
+import com.bugfender.sdk.Bugfender;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -837,15 +839,42 @@ public abstract class Router {
                 to.setNeedsAttach(true);
             }
             pendingControllerChanges.add(transaction);
-            container.post(new Runnable() {
-                @Override
-                public void run() {
-                    performPendingControllerChanges();
+            container = null;
+            if (container == null) {
+                Bugfender.sendIssue("Router id = " + Conductor.INSTANCE.getUniqueID(), "Container is null, controller to - " + to + "Controller from " + from + "\n" +
+                        "isPush = " + isPush + "\n" +
+                        "popsLastView = " + popsLastView + "\n" +
+                        "containerFullyAttached = " + containerFullyAttached + "\n" +
+                        "isActivityStopped = " + isActivityStopped + "\n" +
+                        "backstack = " + backstackToString() + "\n" +
+                        "destroyingControllers = " + destroyingControllers.toString());
+
+                if (getActivity() == null) {
+                    Bugfender.sendIssue("Router id = " + Conductor.INSTANCE.getUniqueID(), "Activity is null");
+                } else {
+                    getRootRouter().popToRoot();
                 }
-            });
+            } else {
+                container.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        performPendingControllerChanges();
+                    }
+                });
+            }
         } else {
             ControllerChangeHandler.executeChange(transaction);
         }
+    }
+
+    private String backstackToString() {
+        Iterator<RouterTransaction> iterator = backstack.iterator();
+        StringBuilder sb = new StringBuilder();
+        while (iterator.hasNext()) {
+            RouterTransaction router = iterator.next();
+            sb.append(router.toString()).append(", ");
+        }
+        return sb.toString();
     }
 
     void performPendingControllerChanges() {
@@ -988,17 +1017,31 @@ public abstract class Router {
     }
 
     abstract void invalidateOptionsMenu();
+
     abstract void startActivity(@NonNull Intent intent);
-    abstract void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode);
+
+    abstract void startActivityForResult(@NonNull String finstanceId, @NonNull Intent intent, int requestCode);
+
     abstract void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode, @Nullable Bundle options);
+
     abstract void startIntentSenderForResult(@NonNull String instanceId, @NonNull IntentSender intent, int requestCode, @Nullable Intent fillInIntent, int flagsMask,
                                              int flagsValues, int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException;
+
     abstract void registerForActivityResult(@NonNull String instanceId, int requestCode);
+
     abstract void unregisterForActivityResults(@NonNull String instanceId);
+
     abstract void requestPermissions(@NonNull String instanceId, @NonNull String[] permissions, int requestCode);
+
     abstract boolean hasHost();
-    @NonNull abstract List<Router> getSiblingRouters();
-    @NonNull abstract Router getRootRouter();
-    @NonNull abstract TransactionIndexer getTransactionIndexer();
+
+    @NonNull
+    abstract List<Router> getSiblingRouters();
+
+    @NonNull
+    abstract Router getRootRouter();
+
+    @NonNull
+    abstract TransactionIndexer getTransactionIndexer();
 
 }

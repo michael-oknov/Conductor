@@ -1,9 +1,11 @@
 package com.bluelinelabs.conductor.demo.controllers
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.demo.R
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController
 import com.bluelinelabs.conductor.demo.databinding.ControllerChildBinding
@@ -28,6 +30,18 @@ class ChildController(args: Bundle) : BaseController(R.layout.controller_child, 
       view.setBackgroundColor(ContextCompat.getColor(view.context, bgColor))
     } else {
       view.setBackgroundColor(bgColor)
+    }
+  }
+
+  override fun onAttach(view: View) {
+    super.onAttach(view)
+    if (R.color.green_300 == args.getInt(KEY_BG_COLOR)) {
+      Log.e("Andrey", "onAttach")
+      router.pushController(
+        RouterTransaction.with(
+          CityDetailController(R.drawable.chicago, "Chicago")
+        )
+      )
     }
   }
 
