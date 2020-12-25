@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -839,7 +838,7 @@ public abstract class Router {
                 to.setNeedsAttach(true);
             }
             pendingControllerChanges.add(transaction);
-            container = null;
+
             if (container == null) {
                 Bugfender.sendIssue("Router id = " + Conductor.INSTANCE.getUniqueID(), "Container is null, controller to - " + to + "Controller from " + from + "\n" +
                         "isPush = " + isPush + "\n" +
