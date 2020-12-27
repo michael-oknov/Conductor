@@ -1,11 +1,14 @@
 package com.bluelinelabs.conductor
 
 import android.app.Activity
+import android.app.Application
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import com.bluelinelabs.conductor.internal.LifecycleHandler
 import com.bluelinelabs.conductor.internal.ensureMainThread
+import com.bugfender.sdk.Bugfender
+import java.util.*
 
 /**
  * Conductor will create a [Router] that has been initialized for your Activity and containing ViewGroup.
@@ -21,12 +24,19 @@ import com.bluelinelabs.conductor.internal.ensureMainThread
  */
 @UiThread
 object Conductor {
-  
+  val uniqueID: String = UUID.randomUUID().toString()
+
   @JvmStatic
   fun attachRouter(activity: Activity, container: ViewGroup, savedInstanceState: Bundle?): Router {
     ensureMainThread()
     return LifecycleHandler.install(activity)
       .getRouter(container, savedInstanceState)
       .also { it.rebindIfNeeded() }
+  }
+
+  fun initBugfender(application: Application) {
+    Bugfender.init(application, BuildConfig.BUGFENDER, BuildConfig.DEBUG)
+    Bugfender.enableCrashReporting()
+    Bugfender.enableUIEventLogging(application)
   }
 }

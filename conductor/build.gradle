@@ -10,6 +10,7 @@ android {
         versionCode Integer.parseInt(project.VERSION_CODE)
         versionName project.VERSION_NAME
         consumerProguardFiles 'proguard-rules.txt'
+        buildConfigField 'String', 'BUGFENDER', "\"EuRTuogWVlCmhbeBcKPSpcYlOWChUp4h\""
     }
 }
 
@@ -18,6 +19,7 @@ dependencies {
     testImplementation rootProject.ext.roboelectric
 
     api rootProject.ext.androidxAnnotations
+    implementation rootProject.ext.bugfender
     api kotlinStd
 
     lintPublish project(':conductor-lint')
