@@ -34,9 +34,8 @@ object Conductor {
       .also { it.rebindIfNeeded() }
   }
 
-  fun initBugfender(application: Application) {
-    Bugfender.init(application, BuildConfig.BUGFENDER, BuildConfig.DEBUG)
+  fun initBugfender(application: Application, isDebug: Boolean) {
+    Bugfender.init(application, BuildConfig.BUGFENDER, isDebug)
     Bugfender.enableCrashReporting()
-    Bugfender.enableUIEventLogging(application)
   }
 }
